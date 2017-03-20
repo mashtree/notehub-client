@@ -29,6 +29,13 @@ public class RepositoryDao {
         conn = SQLiteConnection.connect();
     }
     
+    public RepositoryDao(Connection c){
+        conn = c;
+    }
+    /**
+     * 
+     * @param rep 
+     */
     public void create(Repository rep){
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
@@ -48,7 +55,10 @@ public class RepositoryDao {
             System.out.println(e.getMessage());
         }
     }
-    
+    /**
+     * 
+     * @param rep 
+     */
     public void update(Repository rep){
         String sql = "UPDATE repository SET name_repo= ?, local_location =?,web_location=?,status=? "+
                 " where id_repo = ?";
@@ -66,6 +76,10 @@ public class RepositoryDao {
         }
     }
     
+    /**
+     * 
+     * @return 
+     */
     public ArrayList selectAll(){
         ArrayList<Repository> ar = new ArrayList<>();
         String sql = "SELECT id_repo, name_repo, local_location, web_location, status, created_time "+
@@ -89,6 +103,11 @@ public class RepositoryDao {
         return ar;
     }
     
+    /**
+     * 
+     * @param id
+     * @return 
+     */
     public Repository selectById(int id){
        Repository rep = null;
         String sql = "SELECT id_repo, name_repo, local_location, web_location, status, created_time "+
@@ -112,6 +131,10 @@ public class RepositoryDao {
         return rep;
     }
     
+    /**
+     * 
+     * @param rep 
+     */
     public void delete(Repository rep){
         String sql = "DELETE FROM repository WHERE id_repo = ?";
         try{

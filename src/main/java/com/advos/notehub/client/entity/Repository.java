@@ -16,6 +16,17 @@ public class Repository {
     private String web_location;
     private int status;
     private String createdAt;
+    
+    public Repository(){
+        // do nothing
+    }
+    
+    public Repository(String name, String local, int status, String timestm){
+        name_repo = name;
+        local_location = local;
+        this.status = status;
+        createdAt = timestm;
+    }
 
     /**
      * @return the id_repo

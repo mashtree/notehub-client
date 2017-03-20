@@ -42,11 +42,11 @@ public class MainApp extends Application {
      */
     public static void main(String[] args) throws RemoteException, NotBoundException {
         
-        Registry client = LocateRegistry.getRegistry("10.242.132.53", Registry.REGISTRY_PORT);
-        UsersService nss = (UsersService) client.lookup("UsersServiceServer");
-        User user = new User();
-        User x = nss.insertUser(user);
-        System.out.println(x.getIdUser()+" "+x.getUsername());
+        //Registry client = LocateRegistry.getRegistry("10.242.132.53", Registry.REGISTRY_PORT);
+        //UsersService nss = (UsersService) client.lookup("UsersServiceServer");
+        //User user = new User();
+        //User x = nss.insertUser(user);
+        //System.out.println(x.getIdUser()+" "+x.getUsername());
         launch(args);
         
     }

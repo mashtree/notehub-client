@@ -22,6 +22,10 @@ public class SQLiteDatabase {
         conn = SQLiteConnection.connect();
     }
     
+    public SQLiteDatabase(Connection c){
+        conn = c;
+    }
+    
     public void createTable(){
         
     }

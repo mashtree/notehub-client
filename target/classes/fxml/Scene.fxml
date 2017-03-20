@@ -8,6 +8,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -23,6 +24,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.TextFlow?>
 <?import javafx.scene.web.HTMLEditor?>
+<?import javafx.scene.web.WebView?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.advos.notehub.client.controller.FXMLController">
    <top>
@@ -34,18 +36,14 @@
                      <children>
                         <ToolBar>
                           <items>
-                            <Button mnemonicParsing="false" text="Bold" />
-                              <Button layoutX="10.0" layoutY="13.0" mnemonicParsing="false" text="Italic" />
-                              <Button layoutX="66.0" layoutY="13.0" mnemonicParsing="false" text="Underline" />
-                              <Button layoutX="66.0" layoutY="13.0" mnemonicParsing="false" text="Highlight" />
-                              <Separator orientation="VERTICAL" />
-                              <ColorPicker />
-                              <ComboBox prefWidth="150.0" promptText="Font Type" />
-                              <ComboBox layoutX="380.0" layoutY="98.0" prefWidth="150.0" promptText="11" />
-                              <ComboBox layoutX="380.0" layoutY="98.0" prefWidth="150.0" promptText="Bullet | Numbering" />
-                              <ComboBox layoutX="380.0" layoutY="98.0" prefWidth="150.0" promptText="Paragraph" />
-                              <Separator layoutX="241.0" layoutY="10.0" orientation="VERTICAL" />
-                              <Button layoutX="122.0" layoutY="13.0" mnemonicParsing="false" text="Picture" />
+                            <Button fx:id="btSave" mnemonicParsing="false" onKeyPressed="#saveNote">
+                                 <graphic>
+                                    <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../images/save.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic></Button>
                           </items>
                         </ToolBar>
                      </children></AnchorPane>
@@ -103,7 +101,7 @@
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
-                              <ListView />
+                              <ListView fx:id="lvNotes" />
                            </children></AnchorPane>
                   </content>
                 </TitledPane>
@@ -166,7 +164,7 @@
                                     <Separator layoutX="147.0" layoutY="10.0" orientation="VERTICAL" />
                                     <Button layoutX="122.0" layoutY="13.0" mnemonicParsing="false">
                                        <graphic>
-                                          <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                          <ImageView fx:id="btInsertPicture" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
                                              <image>
                                                 <Image url="@../images/picture.png" />
                                              </image>
@@ -195,19 +193,67 @@
                      <children>
                         <VBox prefHeight="200.0" prefWidth="100.0">
                            <children>
-                              <ToolBar prefHeight="35.0" prefWidth="406.0">
+                              <ToolBar>
                                  <items>
-                                    <Button mnemonicParsing="false" text="Pen" />
-                                    <Button layoutX="10.0" layoutY="13.0" mnemonicParsing="false" text="Pencil" />
-                                    <Button layoutX="66.0" layoutY="13.0" mnemonicParsing="false" text="Highlighter" />
+                                    <Button fx:id="btPencil" layoutX="10.0" layoutY="13.0" mnemonicParsing="false">
+                                       <graphic>
+                                          <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../images/pencil.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic></Button>
+                                    <Button fx:id="btErase" layoutX="66.0" layoutY="13.0" mnemonicParsing="false">
+                                       <graphic>
+                                          <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../images/erase.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic></Button>
                                     <Separator orientation="VERTICAL" />
-                                    <ColorPicker />
+                                    <ColorPicker fx:id="cpDrawing" />
                                     <Separator layoutX="182.0" layoutY="10.0" orientation="VERTICAL" />
-                                    <Button layoutX="122.0" layoutY="13.0" mnemonicParsing="false" text="Oval" />
-                                    <Button layoutX="122.0" layoutY="13.0" mnemonicParsing="false" text="Rectangle" />
-                                    <Button layoutX="122.0" layoutY="13.0" mnemonicParsing="false" text="Triangle" />
-                                    <Button layoutX="122.0" layoutY="13.0" mnemonicParsing="false" text="Line" />
-                                    <Button layoutX="122.0" layoutY="13.0" mnemonicParsing="false" text="TextBox" />
+                                    <Button fx:id="btOval" layoutX="122.0" layoutY="13.0" mnemonicParsing="false">
+                                       <graphic>
+                                          <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../images/oval.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic></Button>
+                                    <Button fx:id="btRectangle" layoutX="122.0" layoutY="13.0" mnemonicParsing="false">
+                                       <graphic>
+                                          <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../images/rectangle.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic></Button>
+                                    <Button fx:id="btTriangle" layoutX="122.0" layoutY="13.0" mnemonicParsing="false">
+                                       <graphic>
+                                          <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../images/triangle.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic></Button>
+                                    <Button fx:id="btLine" layoutX="122.0" layoutY="13.0" mnemonicParsing="false">
+                                       <graphic>
+                                          <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../images/line.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic></Button>
+                                    <Button fx:id="btTextBox" layoutX="122.0" layoutY="13.0" mnemonicParsing="false">
+                                       <graphic>
+                                          <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../images/textbox.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic></Button>
                                  </items>
                               </ToolBar>
                               <Canvas fx:id="cvDraw" height="403.0" width="624.0" />
@@ -224,6 +270,7 @@
                         <VBox prefHeight="675.0" prefWidth="630.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
                               <HTMLEditor id="heNote" fx:id="heNote" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" onKeyPressed="#textingNote" />
+                              <WebView fx:id="wvDisplay" prefHeight="630.0" prefWidth="630.0" />
                            </children>
                         </VBox>
                      </children></AnchorPane>
@@ -261,10 +308,19 @@
                   <Insets left="5.0" top="5.0" />
                </VBox.margin>
             </Label>
-            <TextFlow id="tfDisplayNote" fx:id="tfDisplayNote">
-               <padding>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding></TextFlow>
+            <ScrollPane>
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <TextFlow id="tfDisplayNote" fx:id="tfDisplayNote">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </TextFlow>
+                     </children>
+                  </AnchorPane>
+              </content>
+            </ScrollPane>
          </children>
       </VBox>
    </right>
