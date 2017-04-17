@@ -5,6 +5,8 @@
  */
 package com.advos.notehub.client.entity;
 
+import com.advos.notehub.client.dao.ChangesDao;
+
 /**
  *
  * @author aisyahumar
@@ -13,6 +15,7 @@ public class Changes {
     private int id_changes;
     private int id_repo;
     private int row_updates_num;
+    private String change_type;
     private String old;
     private String newChanges;
     private String file;
@@ -114,6 +117,20 @@ public class Changes {
      */
     public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    /**
+     * @return the change_type
+     */
+    public String getChange_type() {
+        return change_type;
+    }
+
+    /**
+     * @param change_type the change_type to set
+     */
+    public void setChange_type(String change_type) {
+        this.change_type = change_type;
     }
     
 }

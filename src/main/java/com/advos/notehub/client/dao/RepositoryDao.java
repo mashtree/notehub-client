@@ -16,6 +16,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -26,7 +28,11 @@ public class RepositoryDao {
     Connection conn;
     private final int num = 1;
     public RepositoryDao(){
-        conn = SQLiteConnection.connect();
+        try {
+            conn = SQLiteConnection.connect();
+        } catch (Exception ex) {
+            Logger.getLogger(RepositoryDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public RepositoryDao(Connection c){
@@ -115,6 +121,34 @@ public class RepositoryDao {
         try{
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                rep = new Repository();
+                rep.setId_repo(rs.getInt("id_repo"));
+                rep.setName_repo(rs.getString("name_repo"));
+                rep.setLocal_location(rs.getString("local_location"));
+                rep.setWeb_location(rs.getString("web_location"));
+                rep.setStatus(rs.getInt("status"));
+                rep.setCreatedAt(rs.getString("created_time"));
+            }
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return rep;
+    }
+    
+    /**
+     * 
+     * @param name
+     * @return 
+     */
+    public Repository selectByName(String name){
+       Repository rep = null;
+        String sql = "SELECT id_repo, name_repo, local_location, web_location, status, created_time "+
+                "FROM repository where name_repo=?";
+        try{
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
                 rep = new Repository();

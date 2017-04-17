@@ -16,6 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import com.advos.notehub.client.entity.User;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -26,7 +28,11 @@ public class UserDao {
     Connection conn;
     private final int num = 1;
     public UserDao(){
-        conn = SQLiteConnection.connect();
+        if(conn==null) try {
+            conn = SQLiteConnection.connect();
+        } catch (Exception ex) {
+            Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /*
@@ -40,14 +46,16 @@ public class UserDao {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
         String last_online = dateFormat.format(date);
-        String sql = "INSERT INTO user(username, password, is_connect, last_online) "+
-                " VALUES(?,?,?,?)";
+        String sql = "INSERT INTO user(username, password, is_connect, idOnline, idUser, last_online) "+
+                " VALUES(?,?,?,?,?,?)";
         try{
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getPassword());
-            ps.setBoolean(3, true);
-            ps.setString(4, last_online);
+            ps.setBoolean(3, user.isIs_connect());
+            ps.setInt(4, user.getId_online());
+            ps.setInt(5, user.getId_user());
+            ps.setString(6, last_online);
             ps.executeUpdate();
        
         }catch(SQLException e){
@@ -56,13 +64,17 @@ public class UserDao {
     }
     
     public void update(User user){
-        String sql = "UPDATE user SET username = ?, password =? "+
-                " where username = ?";
+        String sql = "UPDATE user SET username = ?, password =?, is_connect=?, idOnline=?, idUser=?, last_online=? "+
+                " WHERE username = ?";
         try{
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getPassword());
-            ps.setString(3, user.getUsername());
+            ps.setBoolean(3, user.isIs_connect());
+            ps.setInt(4, user.getId_online());
+            ps.setInt(5, user.getId_user());
+            ps.setString(6, user.getLast_online());
+            ps.setString(7, user.getUsername());
             ps.executeUpdate();
        
         }catch(SQLException e){
@@ -72,8 +84,7 @@ public class UserDao {
     
     public ArrayList selectAll(){
         ArrayList<User> ar = new ArrayList<>();
-        String sql = "SELECT username, password, is_connect, last_online "+
-                "FROM user";
+        String sql = "SELECT * FROM user";
         try{
             Statement stm = conn.createStatement();
             ResultSet rs = stm.executeQuery(sql);
@@ -89,6 +100,21 @@ public class UserDao {
             System.out.println(e.getMessage());
         }
         return ar;
+    }
+    
+    public int isExistUser(User user){
+        ArrayList<User> ar = new ArrayList<>();
+        String sql = "SELECT COUNT(username) as isExist FROM user WHERE username='"+user.getUsername()+"'";
+        try{
+            Statement stm = conn.createStatement();
+            ResultSet rs = stm.executeQuery(sql);
+            while(rs.next()){
+                return (int) rs.getInt("isExist");
+            }
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return 0;
     }
     
     public void delete(User user){

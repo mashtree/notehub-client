@@ -85,11 +85,19 @@ public class FileModer {
      * @throws IOException 
      */
     public String readFileToString(String filePath) throws FileNotFoundException, IOException{
+        String result = "";
+        StringBuilder sb = new StringBuilder();
         FileReader fr = new FileReader(filePath);
         BufferedReader br = new BufferedReader(fr);
         String line = br.readLine();
+        while(line!=null){
+            sb.append(line);
+            sb.append("\n");
+            line = br.readLine();
+        }
+        result = sb.toString();
         fr.close();
-        return line;
+        return result;
     }
     
     /**

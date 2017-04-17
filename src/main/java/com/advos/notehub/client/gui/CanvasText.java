@@ -1,32 +1,35 @@
-package com.advos.notehub.client.controller;
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+package com.advos.notehub.client.gui;
 
-import com.advos.notehub.client.gui.ShapeType;
-import java.net.URL;
+/**
+ *
+ * @author aisyahumar
+ */
+
+import java.awt.Image;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
-import static javafx.application.Application.launch;
+import java.util.Stack;
+import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -35,29 +38,23 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
 /**
- * FXML Controller class
  *
  * @author aisyahumar
  */
-public class CanvasController implements Initializable {
+public class CanvasText extends VBox{
     
-    @FXML Pane pane;
-    @FXML Canvas canvas;
-    
-    @FXML Button btPencil;
-    @FXML Button btErase;
-    @FXML Button btOval;
-    @FXML Button btRectangle;
-    @FXML Button btLine;
-    @FXML Button btTextBox;
-    @FXML Button btSave;
-    
-    @FXML ColorPicker cpColor;
-    @FXML ColorPicker cpStroke;
-    @FXML ComboBox cbStroke;
-    
+    //private Stack<Canvas> canvas = new Stack<>(); //canvas for each object
+    private Map<Object, Item> objectMap = new HashMap<>();
+    private Pane sp;
     private Color color;
     private Color stroke;
     private int lineWidth;
@@ -65,36 +62,11 @@ public class CanvasController implements Initializable {
     private double x1;
     private double y1;
     MouseGestures mg;
-    /**
-     * Initializes the controller class.
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-        mg = new MouseGestures();
-        color = Color.TRANSPARENT;
-        stroke = Color.BLACK;
+
+    public CanvasText() {
+        this.mg = new MouseGestures();
         lineWidth = 5;
-        final GraphicsContext gc = canvas.getGraphicsContext2D();
-        initDraw(gc);
-        btPencil.setOnAction(e->freeDraw(canvas, gc));
-        btErase.setOnAction(e->eraseShape(canvas, gc));
-        btOval.setOnMousePressed(e->handleEvent(e,btOval,ShapeType.OVAL));
-        btRectangle.setOnMousePressed(e->handleEvent(e,btRectangle,ShapeType.RECTANGLE));
-        btLine.setOnMousePressed(e->handleEvent(e,btLine,ShapeType.LINE));
-        cpColor.setValue(stroke);
-        cpColor.setOnAction(e->setColor("color"));
-        cpStroke.setValue(stroke);
-        cpStroke.setOnAction(e->setColor("stroke"));
-        
-    }
-    
-    private void setColor(String param){
-        if(param.equalsIgnoreCase("color")){
-            color = cpColor.getValue();
-        }else{
-            stroke = cpStroke.getValue();
-        }
+        this.createComponent();
     }
     
     static class TextNode{
@@ -113,10 +85,6 @@ public class CanvasController implements Initializable {
             fontStyle = fontstyle;
         }
         
-    }
-    
-    public static void main(String[] args) {
-        launch(args);
     }
     
     EventHandler<MouseEvent> ehCircle = new EventHandler<MouseEvent>(){
@@ -171,28 +139,24 @@ public class CanvasController implements Initializable {
         if(st == ShapeType.OVAL){
              
             //sp.setOnMousePressed(ev->createCircle(ev));
-            ///removeEventHandler(pane);
-            pane.addEventFilter(MouseEvent.MOUSE_PRESSED, ehCircle);
-            
+            //removeEventHandler(sp);
+            sp.addEventFilter(MouseEvent.MOUSE_PRESSED, ehCircle);
+            sp.removeEventFilter(MouseEvent.MOUSE_RELEASED, ehCircle);
         }
         
         if(st == ShapeType.RECTANGLE){
              
             //sp.setOnMousePressed(ev->createRectangle(ev));
-            
-            pane.addEventFilter(MouseEvent.MOUSE_PRESSED, ehRect);
-            //removeEventHandler(pane);
+            //removeEventHandler(sp);
+            sp.addEventFilter(MouseEvent.MOUSE_PRESSED, ehRect);
+            sp.removeEventFilter(MouseEvent.MOUSE_RELEASED, ehRect);
         }
         
         if(st == ShapeType.LINE){
              
-            
-            pane.addEventFilter(MouseEvent.MOUSE_PRESSED, ehLine);
-            //removeEventHandler(pane);
-            /*Line line = new Line(50,50,400,400);
-            line.setStrokeWidth(10);
-            sp.getChildren().add(line);
-            mg.makeLineDraggable(line);*/
+            //removeEventHandler(sp);
+            sp.addEventFilter(MouseEvent.MOUSE_PRESSED, ehLine);
+            sp.removeEventFilter(MouseEvent.MOUSE_RELEASED, ehLine);
         }
         
         if(st == ShapeType.TEXT){
@@ -204,13 +168,8 @@ public class CanvasController implements Initializable {
         setInitialCoordinate(e);
         
         final Circle c  = new Circle(e.getX(),e.getY(),5,color);
-        //c.setStroke(Color.BLACK);
-        //c.setFill(Color.WHITE);
-       // c.setCenterX(x1);
-        //c.setCenterY(y1);
-       // c.setFill(color);
         c.setStroke(stroke);
-        pane.getChildren().add(c);
+        sp.getChildren().add(c);
         
 
         c.setOnMouseDragged(ev->{
@@ -227,7 +186,6 @@ public class CanvasController implements Initializable {
             x1 = 0.0;
             y1 = 0.0;
             mg.makeCircleDraggable(c);
-            removeEventHandler(pane);
         });
     }
     
@@ -240,7 +198,7 @@ public class CanvasController implements Initializable {
         rect.setHeight(5);
         rect.setFill(color);
         rect.setStroke(stroke);
-        pane.getChildren().add(rect);
+        sp.getChildren().add(rect);
         rect.setOnMouseDragged(ev->{
             double x2 = ev.getSceneX();
             double y2 = ev.getSceneY();
@@ -249,7 +207,6 @@ public class CanvasController implements Initializable {
         });
         rect.setOnMouseReleased(ev->{
             mg.makeRectDraggable(rect);
-            removeEventHandler(pane);
         });
         
     }
@@ -264,7 +221,7 @@ public class CanvasController implements Initializable {
         line.setFill(color);
         line.setStroke(stroke);
         line.setStrokeWidth(lineWidth);
-        pane.getChildren().add(line);
+        sp.getChildren().add(line);
         line.setOnMouseDragged(ev->{
             double x2 = ev.getSceneX();
             double y2 = ev.getSceneY();
@@ -274,7 +231,6 @@ public class CanvasController implements Initializable {
         
         line.setOnMouseReleased(ev->{
             mg.makeLineDraggable(line);
-            removeEventHandler(pane);
         });
     }
     
@@ -282,6 +238,67 @@ public class CanvasController implements Initializable {
         x1 = e.getX();
         y1 = e.getY();
         System.out.println(x1+"-"+y1);
+    }
+    
+    Canvas canvas;
+    
+    private void createComponent(){
+        
+        this.setPrefSize(600, 600);
+        ToolBar tb = new ToolBar();
+        Button btPen = new Button("pencil");
+        Button btErase = new Button("erase");
+        Button btOval = new Button("oval");
+        btOval.setOnAction(e->handleEvent(e,btOval,ShapeType.OVAL));
+        Button btRect = new Button("rect");
+        btRect.setOnAction(e->handleEvent(e,btRect,ShapeType.RECTANGLE));
+        Button btLine = new Button("line");
+        btLine.setOnAction(e->handleEvent(e,btLine,ShapeType.LINE));
+        Button btText = new Button("text");
+        btText.setOnAction(e->handleEvent(e,btText,ShapeType.TEXT));
+        Button btSave = new Button("save");
+        Label lbColor = new Label("Fill :");
+        ColorPicker cp = new ColorPicker();
+        cp.setOnAction(e->{
+            color = cp.getValue();
+        });
+        Label lbStroke = new Label("Stroke :");
+        ColorPicker cps = new ColorPicker();
+        cps.setOnAction(e->{
+            stroke = cps.getValue();
+        });
+        tb.getItems().addAll(
+                btPen,btErase,
+                new Separator(),
+                lbColor,
+                cp,
+                lbStroke,
+                cps,
+                new Separator(),
+                btOval,btLine,btRect,btText,
+                new Separator(),
+                btSave
+        );
+        Group p = new Group();
+        sp = new StackPane();
+
+        final Circle c  = new Circle(0.0f,0.0f,5,Color.BLACK);
+        /**
+         *  Canvas
+         */
+        canvas = new Canvas(600,600);
+        final GraphicsContext gc = canvas.getGraphicsContext2D();
+        initDraw(gc);
+        btPen.setOnAction(e->freeDraw(canvas, gc));
+        btErase.setOnAction(e->eraseShape(canvas, gc));
+        sp.getChildren().add(canvas);
+        p.getChildren().addAll(sp);
+        //sp.getChildren().add(c);
+        sp.setOnMousePressed(e->{
+            System.out.println(e.getX());
+        });
+        /** end of canvas **/
+        this.getChildren().addAll(tb,sp);
     }
     
     private void freeDraw(Canvas canvas, GraphicsContext gc){
@@ -315,9 +332,6 @@ public class CanvasController implements Initializable {
         gc.setLineWidth(1);
     }
     
-    /**
-     * class mousegesture
-     */
     public static class MouseGestures {
 
         double orgSceneX, orgSceneY;
@@ -422,3 +436,17 @@ public class CanvasController implements Initializable {
     }
     
 }
+
+class Item{
+    int x1,x2,y1,y2;
+    ShapeType shapeType;
+    
+    public Item(int x1,int y1,int x2,int y2, ShapeType st){
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+        shapeType = st;
+    }
+}
+

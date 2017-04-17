@@ -16,7 +16,19 @@ import java.sql.SQLException;
  */
 public class SQLiteConnection {
 
-    public static Connection connect(){
+    private static Connection c = null;
+
+    public static Connection connect() throws Exception {
+        if (c == null) {
+            File f = new File("src/main/resources/database/notehub-desktop.sqlite3");
+            String url = "jdbc:sqlite:"+f.getAbsolutePath();
+            c = DriverManager.getConnection(url);
+        }
+        return c;
+    }
+
+
+public static Connection cconnect(){
         Connection conn = null;
         try{
             File f = new File("src/main/resources/database/notehub-desktop.sqlite3");
@@ -40,4 +52,3 @@ public class SQLiteConnection {
     }
     
 }
-

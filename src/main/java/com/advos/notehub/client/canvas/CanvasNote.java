@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package canvas;
+package com.advos.notehub.client.canvas;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,13 +15,20 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 /**
  *
  * @author aisyahumar
  */
-public class CanvasNote {
+public class CanvasNote extends VBox{
+    
+    private StackPane root;
+    public CanvasNote(){
+        root = new StackPane();
+    }
     
     public Map<Integer, Canvas> layers = new HashMap<>();
     

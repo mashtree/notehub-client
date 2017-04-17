@@ -3,12 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package canvas;
+package com.advos.notehub.client.canvas;
 
 /**
  *
  * @author aisyahumar
  */
-public enum Shapes {
-    OVAL, RECTANGLE, TRIANGLE, LINE
+public class ShapeNode {
+    
+    private int startX;
+    private int startY;
+    private int endX;
+    private int endY;
+    
+    private Shapes shapeType;
+    
 }

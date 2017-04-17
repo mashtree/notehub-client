@@ -3,15 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.advos.notehub.client;
+package com.advos.notehub.client.gui;
 
 /**
  *
  * @author aisyahumar
  */
-public class MainController {
-    
-    public void clickButton(){
-        System.out.println("test");
-    }
+public enum ShapeType {
+    OVAL, RECTANGLE, LINE, TEXT
 }

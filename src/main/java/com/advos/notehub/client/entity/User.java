@@ -14,6 +14,8 @@ public class User {
     private String password;
     private boolean is_connect;
     private String last_online;
+    private int id_online; //unique id from server
+    private int id_user; //id on server
 
     /**
      * @return the username
@@ -69,6 +71,34 @@ public class User {
      */
     public void setLast_online(String last_connect) {
         this.last_online = last_connect;
+    }
+
+    /**
+     * @return the id_online
+     */
+    public int getId_online() {
+        return id_online;
+    }
+
+    /**
+     * @param id_online the id_online to set
+     */
+    public void setId_online(int id_online) {
+        this.id_online = id_online;
+    }
+
+    /**
+     * @return the id_user
+     */
+    public int getId_user() {
+        return id_user;
+    }
+
+    /**
+     * @param id_user the id_user to set
+     */
+    public void setId_user(int id_user) {
+        this.id_user = id_user;
     }
     
 }
