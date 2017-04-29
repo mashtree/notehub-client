@@ -6,6 +6,10 @@
 package com.advos.notehub.client;
 
 import com.notehub.api.entity.User;
+import com.notehub.api.service.AuthService;
+import com.notehub.api.service.NoteChangesService;
+import com.notehub.api.service.NotesService;
+import java.rmi.registry.Registry;
 
 /**
  *
@@ -20,5 +24,20 @@ public class Conf {
     public static int OnlineID = 0;
     
     public static User user = null;
+    
+    public static String serverip = "";
+    
+    public static int serverport = Registry.REGISTRY_PORT;
+    
+    /*public static NotesService ns;
+    public static NoteChangesService nss;
+    public static AuthService as;*/
+    
+    public static void setConf(boolean isLogin, int UID, int OnlineID, User user){
+        Conf.isLogin = isLogin;
+        Conf.UID = UID;
+        Conf.OnlineID = OnlineID;
+        Conf.user = user;
+    }
     
 }

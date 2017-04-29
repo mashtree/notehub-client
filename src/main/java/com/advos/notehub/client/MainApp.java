@@ -4,6 +4,7 @@ import com.advos.notehub.client.controller.FXMLController;
 import com.advos.notehub.client.event.ServiceLocator;
 import com.notehub.api.entity.User;
 import com.advos.notehub.client.util.SQLiteConnection;
+import com.notehub.api.service.AuthService;
 import com.notehub.api.service.NotesService;
 import com.notehub.api.service.UsersService;
 import com.notehub.api.service.NoteChangesService;
@@ -28,6 +29,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 
 public class MainApp extends Application {
@@ -52,8 +54,8 @@ public class MainApp extends Application {
         
         stage.setTitle("JavaFX and Maven");
         stage.setScene(scene);
+        //stage.initStyle(StageStyle.UTILITY);
         stage.show();
-        //SQLiteConnection.connect();
     }
     
     private void closeProgram() throws IOException{
@@ -80,7 +82,32 @@ public class MainApp extends Application {
      */
     public static void main(String[] args) throws UnknownHostException {
         //System.setSecurityManager(new RMISecurityManager());
+        if(args.length>0){
+            Conf.serverip = args[0];
+            Conf.serverport = Integer.parseInt(args[1]);
+        }
         
+        /*try {
+            client = LocateRegistry.getRegistry(ip
+                    + "", port);
+            us = (UsersService) client.lookup("UsersServiceServer");
+
+            ns = (NotesService) client.lookup("NoteServiceServer");
+            serverService.put("NoteServiceServer", ns);
+
+            nss = (NoteChangesService) client.lookup("NoteChangeServiceServer");
+            serverService.put("NoteChangeServiceServer", nss);
+
+            as = (AuthService) client.lookup("AuthServiceServer");
+
+            ipAddress = Inet4Address.getLocalHost().getHostAddress();
+        } catch (RemoteException re) {
+            System.out.println("Remote Exception : " + re);
+        } catch (NotBoundException nbe) {
+            System.out.println("Not Bound Exception : " + nbe);
+        } catch (UnknownHostException uhe) {
+            System.out.println("Unknown Host Exception : " + uhe);
+        }*/
         System.out.println(Inet4Address.getLocalHost().getHostAddress());
         
         launch(args);

@@ -14,6 +14,7 @@ public class Repository {
     private String name_repo;
     private String local_location;
     private String web_location;
+    private int id_on_server;
     private int status;
     private String createdAt;
     
@@ -110,6 +111,20 @@ public class Repository {
      */
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    /**
+     * @return the id_on_server
+     */
+    public int getId_on_server() {
+        return id_on_server;
+    }
+
+    /**
+     * @param id_on_server the id_on_server to set
+     */
+    public void setId_on_server(int id_on_server) {
+        this.id_on_server = id_on_server;
     }
     
 }

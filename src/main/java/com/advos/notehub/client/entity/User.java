@@ -101,4 +101,13 @@ public class User {
         this.id_user = id_user;
     }
     
+    public void setAttributeFromUserAPI(com.notehub.api.entity.User user, boolean isConnect){
+        this.setUsername(user.getUsername());
+        this.setPassword(user.getPassword());
+        this.setLast_online(user.getLastConnect());
+        this.setIs_connect(isConnect);
+        this.setId_user(user.getIdUser());
+        this.setId_online(user.getIdOnline());
+    }
+    
 }

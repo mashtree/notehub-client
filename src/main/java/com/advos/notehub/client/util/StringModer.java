@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 /**
  *
@@ -23,17 +25,29 @@ public class StringModer {
      */
     public String stripHTMLTags(String htmlText) {
         
+        String text = br2nl(htmlText);
         Pattern pattern = Pattern.compile("<[^>]*>");
         //Pattern pattern = Pattern.compile("/\\<body[^>]*\\>([^]*)\\<\\/body/m");
         //Pattern pattern = Pattern.compile("/\\<body[^>]*\\>([^]*)\\<\\/body/\\");
-        Matcher matcher = pattern.matcher(htmlText);
-        final StringBuffer sb = new StringBuffer(htmlText.length());
+        Matcher matcher = pattern.matcher(text);
+        final StringBuffer sb = new StringBuffer(text.length());
         while(matcher.find()) {
             matcher.appendReplacement(sb, " ");
         }
         matcher.appendTail(sb);
         return sb.toString().trim();
 
+    }
+    
+    private String br2nl(String html) {
+        Document document = Jsoup.parse(html);
+        document.select("br").append("\\n");
+        document.select("p").prepend("\\n\\n");
+        return document.text().replace("\\n", "\n");
+    }
+
+    private String nl2br(String text) {
+        return text.replace("\n\n", "<p>").replace("\n", "<br>");
     }
     
     /**

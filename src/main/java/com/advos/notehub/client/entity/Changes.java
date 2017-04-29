@@ -14,6 +14,7 @@ import com.advos.notehub.client.dao.ChangesDao;
 public class Changes {
     private int id_changes;
     private int id_repo;
+    private int version;
     private int row_updates_num;
     private String change_type;
     private String old;
@@ -131,6 +132,20 @@ public class Changes {
      */
     public void setChange_type(String change_type) {
         this.change_type = change_type;
+    }
+
+    /**
+     * @return the version
+     */
+    public int getVersion() {
+        return version;
+    }
+
+    /**
+     * @param version the version to set
+     */
+    public void setVersion(int version) {
+        this.version = version;
     }
     
 }

@@ -32,40 +32,46 @@ public class ConfigurationManager {
 
     /**
      * create Note's directory and version marker
+     *
      * @param selectedDirectory
-     * @throws IOException 
+     * @throws IOException
      */
-    public void createFileConf(File selectedDirectory, String pathFile) throws IOException{
+    public void createFileConf(File selectedDirectory, String pathFile) throws IOException {
         /**
-         * DIRECTORY'S STRUCTURE
-         * note's name
-         * - dir 
+         * DIRECTORY'S STRUCTURE note's name - dir
          */
         FileModer fm = new FileModer();
-        String fileName = selectedDirectory.getName()+".not";
-        String htmlFileName = selectedDirectory.getName()+".htm";
-        String str = "<html dir=\"ltr\">\n" +
-                "<head>\n" +
-                "</head>\n" +
-                "<body contenteditable=\"true\">\n" +
-                "</body>\n" +
-                "</html>"; 
-        fm.writeFile("", pathFile+"/"+fileName);
-        fm.writeFile(str, pathFile+"/"+htmlFileName);
-        
-        String dirImages = pathFile+"/images/";
-        String dirConf = pathFile+"/.conf/";
-        String confFile = dirConf+"notehub.xml";
-        
-        fm.createDirectory(dirConf);
-        fm.createDirectory(dirImages);
+        String fileName = selectedDirectory.getName() + ".txt";
+        String htmlFileName = selectedDirectory.getName() + ".htm";
+        String str = "<html dir=\"ltr\">\n"
+                + "<head>\n"
+                + "</head>\n"
+                + "<body contenteditable=\"true\">\n"
+                + "</body>\n"
+                + "</html>";
+        if (!new File(pathFile + "/" +fileName).exists()) {
+            fm.writeFile("", pathFile + "/" + fileName);
+        }
+        if (!new File(pathFile + "/" +htmlFileName).exists()) {
+            fm.writeFile(str, pathFile + "/" + htmlFileName);
+        }
+
+        //String dirImages = pathFile+"/images/";
+        //String dirConf = pathFile+"/.conf/";
+        String confContent = "0:" + selectedDirectory.getName() + ":0";
+        String confFile = "conf";//dirConf+"notehub.xml";
+        if (!new File(pathFile + "/" + confFile).exists()) {
+            fm.writeFile(confContent, pathFile + "/" + confFile);
+        }
+
+        //fm.createDirectory(dirConf);
+        //fm.createDirectory(dirImages);
         //fm.writeFile("", confFile);
-        
-        ConfigurationManager cm = new ConfigurationManager();
-        cm.createXMLFile(confFile, selectedDirectory.getName());
+        //ConfigurationManager cm = new ConfigurationManager();
+        //cm.createXMLFile(confFile, selectedDirectory.getName());
         //System.out.println(pathFile+"/.conf/"+confFile);
     }
-    
+
     public void createXMLFile(File file, String noteName) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -91,30 +97,10 @@ public class ConfigurationManager {
             user.appendChild(doc.createTextNode(""));
             rootElement.appendChild(user);
 
-            //contributor
-            Element contributors = doc.createElement("contributors");
-            rootElement.appendChild(contributors);
-
-            //contributor 1.0
-            //Element contributor = doc.createElement("contributor");
-            //contributors.appendChild(contributor);
-
-            //Contributor's information
-            //Element contributorName = doc.createElement("name");
-            //contributorName.appendChild(doc.createTextNode("sumargo"));
-            //contributor.appendChild(contributorName);
-
-            //changes/version
-            Element versions = doc.createElement("versions");
-            rootElement.appendChild(versions);
-
             //version 1.0
             Element version = doc.createElement("version");
-            versions.appendChild(version);
-
-            Element versionNumber = doc.createElement("versionNumber");
-            versionNumber.appendChild(doc.createTextNode("1.0"));
-            version.appendChild(versionNumber);
+            version.appendChild(doc.createTextNode("1.0"));
+            rootElement.appendChild(version);
 
             //location (local)
             Element location = doc.createElement("location");
@@ -169,26 +155,7 @@ public class ConfigurationManager {
                     System.out.println(element.getElementsByTagName("name").item(0).getTextContent());
                     System.out.println(element.getElementsByTagName("firstcommit").item(0).getTextContent());
                     System.out.println(element.getElementsByTagName("user").item(0).getTextContent());
-                    //System.out.println(element.getElementsByTagName("contributors").item(0).getTextContent());
-                    NodeList contributors = doc.getElementsByTagName("contributor");
-                    for (int j = 0; j < contributors.getLength(); j++) {
-                        Node ncont = contributors.item(j);
-                        if (ncont.getNodeType() == Node.ELEMENT_NODE) {
-                            Element econt = (Element) ncont;
-                            System.out.println(econt.getElementsByTagName("name").item(0).getTextContent());
-                            //System.out.println(element.getElementsByTagName("name").item(0).getTextContent());
-                        }
-                    }
-                    //System.out.println(element.getElementsByTagName("versions").item(0).getTextContent());
-                    NodeList versions = doc.getElementsByTagName("version");
-                    for (int j = 0; j < versions.getLength(); j++) {
-                        Node nver = versions.item(j);
-                        if (nver.getNodeType() == Node.ELEMENT_NODE) {
-                            Element ever = (Element) nver;
-                            System.out.println(ever.getElementsByTagName("versionNumber").item(0).getTextContent());
-                            //System.out.println(element.getElementsByTagName("name").item(0).getTextContent());
-                        }
-                    }
+                    System.out.println(element.getElementsByTagName("version").item(0).getTextContent());
                     System.out.println(element.getElementsByTagName("location").item(0).getTextContent());
                     System.out.println(element.getElementsByTagName("idDoc").item(0).getTextContent());
                 }

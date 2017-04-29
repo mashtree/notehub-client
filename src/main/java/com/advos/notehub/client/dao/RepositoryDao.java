@@ -66,7 +66,7 @@ public class RepositoryDao {
      * @param rep 
      */
     public void update(Repository rep){
-        String sql = "UPDATE repository SET name_repo= ?, local_location =?,web_location=?,status=? "+
+        String sql = "UPDATE repository SET name_repo= ?, local_location =?,web_location=?,status=?,id_on_server=? "+
                 " where id_repo = ?";
         try{
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -74,7 +74,8 @@ public class RepositoryDao {
             ps.setString(2, rep.getLocal_location());
             ps.setString(3, rep.getWeb_location());
             ps.setInt(4, rep.getStatus());
-            ps.setInt(5, rep.getId_repo());
+            ps.setInt(5, rep.getId_on_server());
+            ps.setInt(6, rep.getId_repo());
             ps.executeUpdate();
        
         }catch(SQLException e){
@@ -144,7 +145,7 @@ public class RepositoryDao {
      */
     public Repository selectByName(String name){
        Repository rep = null;
-        String sql = "SELECT id_repo, name_repo, local_location, web_location, status, created_time "+
+        String sql = "SELECT id_repo, name_repo, local_location, web_location, status, created_time, id_on_server "+
                 "FROM repository where name_repo=?";
         try{
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -157,6 +158,7 @@ public class RepositoryDao {
                 rep.setLocal_location(rs.getString("local_location"));
                 rep.setWeb_location(rs.getString("web_location"));
                 rep.setStatus(rs.getInt("status"));
+                rep.setId_on_server(rs.getInt("id_on_server"));
                 rep.setCreatedAt(rs.getString("created_time"));
             }
         }catch(SQLException e){
