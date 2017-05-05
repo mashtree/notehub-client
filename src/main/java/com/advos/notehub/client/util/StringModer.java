@@ -14,7 +14,7 @@ import org.jsoup.nodes.Document;
 
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class StringModer {
     

@@ -33,7 +33,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 
 /**
- *
+ * https://github.com/dipu-bd/CustomControlFX
  * @author dipu
  */
 public class CustomHTMLEditor extends HTMLEditor {
@@ -138,13 +138,14 @@ public class CustomHTMLEditor extends HTMLEditor {
      *
      * @param file Image file.
      */
-    private void importDataFile(File file) {
+    public void importDataFile(File file) {
         try {
             //check if file is too big
             if (file.length() > 600 * 600) {
                 Alert alert = new Alert(AlertType.ERROR, "File is to big! use file with resolution under 600x600!");
                 alert.showAndWait();
-                throw new VerifyError("File is too big.");
+                //throw new VerifyError("File is too big.");
+                return;
             }
             //get mime type of the file
             String type = java.nio.file.Files.probeContentType(file.toPath());

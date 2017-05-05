@@ -7,7 +7,7 @@ package com.advos.notehub.client.entity;
 
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class Repository {
     private int id_repo;
@@ -125,6 +125,10 @@ public class Repository {
      */
     public void setId_on_server(int id_on_server) {
         this.id_on_server = id_on_server;
+    }
+    
+    public void noteToRepository(com.notehub.api.entity.Note note){
+        
     }
     
 }

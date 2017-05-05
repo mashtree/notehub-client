@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class SQLiteConnection {
 

@@ -11,7 +11,7 @@ import java.util.Date;
 
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class DateUtil {
     

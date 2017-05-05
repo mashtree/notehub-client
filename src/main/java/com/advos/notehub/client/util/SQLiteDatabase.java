@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class SQLiteDatabase {
     

@@ -5,11 +5,9 @@
  */
 package com.advos.notehub.client.entity;
 
-import com.advos.notehub.client.dao.ChangesDao;
-
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class Changes {
     private int id_changes;

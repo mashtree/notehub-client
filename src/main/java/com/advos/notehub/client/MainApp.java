@@ -1,23 +1,10 @@
 package com.advos.notehub.client;
 
-import com.advos.notehub.client.controller.FXMLController;
-import com.advos.notehub.client.event.ServiceLocator;
-import com.notehub.api.entity.User;
-import com.advos.notehub.client.util.SQLiteConnection;
-import com.notehub.api.service.AuthService;
-import com.notehub.api.service.NotesService;
-import com.notehub.api.service.UsersService;
-import com.notehub.api.service.NoteChangesService;
+import com.advos.notehub.client.util.DateUtil;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
-import java.rmi.NotBoundException;
-import java.rmi.RMISecurityManager;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -26,12 +13,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 
+/**
+ *
+ * @author triyono
+ */
 public class MainApp extends Application {
     Stage stage;
     @Override
@@ -54,7 +43,6 @@ public class MainApp extends Application {
         
         stage.setTitle("JavaFX and Maven");
         stage.setScene(scene);
-        //stage.initStyle(StageStyle.UTILITY);
         stage.show();
     }
     
@@ -69,6 +57,7 @@ public class MainApp extends Application {
 
         if (alert.getResult() == ButtonType.YES) {
             stage.close();
+            System.exit(0);
         }
     }
 
@@ -82,33 +71,18 @@ public class MainApp extends Application {
      */
     public static void main(String[] args) throws UnknownHostException {
         //System.setSecurityManager(new RMISecurityManager());
-        if(args.length>0){
-            Conf.serverip = args[0];
-            Conf.serverport = Integer.parseInt(args[1]);
-        }
+        System.out.println("Server setting");
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("server id address : ");
+        Conf.serverip = scanner.nextLine();
+        System.out.print("server port : ");
+        Conf.serverport = scanner.nextInt();
+        //if(args.length>0){
+            //Conf.serverip = ;
+            //Conf.serverport = Integer.parseInt(args[1]);
+        //}
         
-        /*try {
-            client = LocateRegistry.getRegistry(ip
-                    + "", port);
-            us = (UsersService) client.lookup("UsersServiceServer");
-
-            ns = (NotesService) client.lookup("NoteServiceServer");
-            serverService.put("NoteServiceServer", ns);
-
-            nss = (NoteChangesService) client.lookup("NoteChangeServiceServer");
-            serverService.put("NoteChangeServiceServer", nss);
-
-            as = (AuthService) client.lookup("AuthServiceServer");
-
-            ipAddress = Inet4Address.getLocalHost().getHostAddress();
-        } catch (RemoteException re) {
-            System.out.println("Remote Exception : " + re);
-        } catch (NotBoundException nbe) {
-            System.out.println("Not Bound Exception : " + nbe);
-        } catch (UnknownHostException uhe) {
-            System.out.println("Unknown Host Exception : " + uhe);
-        }*/
-        System.out.println(Inet4Address.getLocalHost().getHostAddress());
+        System.out.println(DateUtil.getTimeNow()+" client ip address : "+Inet4Address.getLocalHost().getHostAddress());
         
         launch(args);
         

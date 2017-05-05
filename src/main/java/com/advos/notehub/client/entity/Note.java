@@ -5,14 +5,12 @@
  */
 package com.advos.notehub.client.entity;
 
-import com.advos.notehub.client.util.FileModer;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class Note {
     

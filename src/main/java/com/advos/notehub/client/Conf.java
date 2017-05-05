@@ -6,14 +6,11 @@
 package com.advos.notehub.client;
 
 import com.notehub.api.entity.User;
-import com.notehub.api.service.AuthService;
-import com.notehub.api.service.NoteChangesService;
-import com.notehub.api.service.NotesService;
 import java.rmi.registry.Registry;
 
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class Conf {
     

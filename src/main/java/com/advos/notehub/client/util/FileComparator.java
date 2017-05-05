@@ -16,7 +16,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * 
+ * @author triyono
+ */
 public class FileComparator {
 
     private File original;

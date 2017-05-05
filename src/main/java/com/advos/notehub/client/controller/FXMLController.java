@@ -1,14 +1,16 @@
 package com.advos.notehub.client.controller;
 
 import com.advos.notehub.client.Conf;
+import com.advos.notehub.client.MessageClientImpl;
 import com.advos.notehub.client.dao.ChangesDao;
 import com.advos.notehub.client.dao.RepositoryDao;
 import com.advos.notehub.client.dao.UserDao;
 import com.advos.notehub.client.entity.Changes;
 import com.advos.notehub.client.entity.Note;
 import com.advos.notehub.client.entity.Repository;
-import com.advos.notehub.client.gui.CanvasText;
 import com.advos.notehub.client.entity.User;
+import com.advos.notehub.client.gui.CanvasText;
+import com.advos.notehub.client.util.CanvasNote;
 import com.advos.notehub.client.util.ConfigurationManager;
 import com.advos.notehub.client.util.DateUtil;
 import com.advos.notehub.client.util.FileComparator;
@@ -19,13 +21,14 @@ import com.advos.notehub.client.util.sandsoft.CustomHTMLEditor;
 import com.notehub.api.entity.NoteChange;
 import com.notehub.api.entity.NoteChangesMap;
 import com.notehub.api.service.AuthService;
+import com.notehub.api.service.MessageClient;
 import com.notehub.api.service.NoteChangesService;
 import com.notehub.api.service.NotesService;
 import com.notehub.api.service.UsersService;
+import com.notehub.api.service.MessageServerService;
 import difflib.Chunk;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.Inet4Address;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -48,10 +51,14 @@ import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
@@ -61,10 +68,15 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
 
+/**
+ *
+ * @author triyono
+ */
 public class FXMLController implements Initializable {
 
     @FXML
@@ -95,11 +107,22 @@ public class FXMLController implements Initializable {
     @FXML
     private MenuItem miDelNote;
     @FXML
-    private TitledPane tpFileInfo;
-    @FXML
-    private TitledPane tpVersion;
-    @FXML
     private Tab tpChanges;
+    /**
+     * C A N V A S
+     */
+    @FXML
+    private Button btPencil;
+    @FXML
+    private Button btErase;
+    @FXML
+    private Button btSaveCanvas;
+    @FXML
+    private ColorPicker cpColor;
+    @FXML
+    private ComboBox cbStroke;
+    @FXML
+    private Canvas canvas;
 
     private String ipAddress;
     private String pathFile;
@@ -113,6 +136,8 @@ public class FXMLController implements Initializable {
     private NotesService ns;
     private NoteChangesService nss;
     private AuthService as;
+    private MessageServerService msss;
+    private MessageClient messageClient;
     private RepositoryDao repdao;
 
     private CustomHTMLEditor che;
@@ -128,9 +153,9 @@ public class FXMLController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        String ip = Conf.serverip.equalsIgnoreCase("") ? "192.168.130.1" : Conf.serverip;
+        String ip = Conf.serverip.equalsIgnoreCase("") ? "146.186.64.166" : Conf.serverip;
         int port = Conf.serverport;
-
+        //System.setProperty("java.rmi.server.hostname", "192.168.130.2");
         try {
             client = LocateRegistry.getRegistry(ip
                     + "", port);
@@ -143,6 +168,8 @@ public class FXMLController implements Initializable {
             serverService.put("NoteChangeServiceServer", nss);
 
             as = (AuthService) client.lookup("AuthServiceServer");
+            
+            msss = (MessageServerService) client.lookup("MessageServerServiceServer");
 
             ipAddress = Inet4Address.getLocalHost().getHostAddress();
         } catch (RemoteException re) {
@@ -176,17 +203,12 @@ public class FXMLController implements Initializable {
         });
 
         che = new CustomHTMLEditor();
-        //ct = new CanvasText();
-        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("/fxml/canvas.fxml"));
-        VBox canvas = null;
-        try {
-            canvas = fxmlloader.load();
-            System.out.println(canvas.getClass().getName());
-            vbCanvas.getChildren().add(canvas);
-        } catch (IOException e) {
-            System.out.println("IOException : " + e.getMessage());
-        }
-
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        //vbCanvas.getChildren().add(canvas);
+        CanvasNote canvasNote = new CanvasNote();
+        canvasNote.initDraw(gc);
+        initCanvas(canvasNote,gc);
+        
         vbNoteName.getChildren().add(che);
 
         /**
@@ -209,8 +231,8 @@ public class FXMLController implements Initializable {
             }
         });
 
-        tpVersion.setVisible(false);
-        tpFileInfo.setVisible(false);
+        //tpVersion.setVisible(false);
+       // tpFileInfo.setVisible(false);
 
     }
 
@@ -227,8 +249,8 @@ public class FXMLController implements Initializable {
         Stage stage = new Stage();
         DirectoryChooser dc = new DirectoryChooser();
         dc.setTitle("Choosing a directory as your note's name");
-        File defaultDirectory = new File("c:/");
-        dc.setInitialDirectory(defaultDirectory);
+        //File defaultDirectory = new File("c:/");
+        //dc.setInitialDirectory(defaultDirectory);
         try {
             File selectedDirectory = dc.showDialog(stage);
             String str = "<html dir=\"ltr\">\n"
@@ -258,19 +280,18 @@ public class FXMLController implements Initializable {
             tabNotesName.setText(openedNote);
             pathFile = selectedDirectory.getAbsolutePath();
             
-            
-            cm.createFileConf(selectedDirectory, pathFile); //create configuration file
-            
-            
-
             //---------- DATE
             DateFormat dateFormat = new SimpleDateFormat("Y-m-d HH:mm:ss");
             Date date = new Date();
             System.out.println(dateFormat.format(date)+" creating note : "+openedNote);
             //----------- ./DATE
+            
+            Repository rep = new Repository(openedNote, pathFile, 1, dateFormat.format(date));
+            rep.setId_on_server(0);
+            
+            cm.createFileConf(selectedDirectory, pathFile, rep); //create configuration file
 
             //add repository to database
-            Repository rep = new Repository(openedNote, pathFile, 1, dateFormat.format(date));
             repdao.create(rep);
             listViewNotes(repdao);
 
@@ -286,7 +307,7 @@ public class FXMLController implements Initializable {
     }
 
     @FXML
-    private void saveNote() throws IOException {
+    private void saveNote() {
         StringModer sm = new StringModer();
         String t = sm.addNewLineHTMLTags(che.getHtmlText());
         String onlyText = sm.stripHTMLTags(t);
@@ -295,25 +316,30 @@ public class FXMLController implements Initializable {
         String pathNameOnlyText = pathFile + "/" + openedNote + ".txt";
         ArrayList<String> revisedOnlyText = sm.strToArrayList(onlyText);
         FileModer fm = new FileModer();
-        //ArrayList<String> original = fm.readFile(pathName);
-        //save changes to database
-        //RepositoryDao rd = new RepositoryDao();
-        //get old string per row and give row number as a key
-        //Map<Integer, String> mapOri = new HashMap<>();
-        //for(int i=0;i<original.size();i++){
-        //    mapOri.put(i, original.get(i));
-        //}
-        //save note's changes to database
-        //insertChange(getNoteChanges(original, revised), rd.selectByName(openedNote), mapOri, new ChangesDao());
-
-        //---- end of save note's changes
-        fm.writeFile(revised, pathName);
-        fm.writeFile(revisedOnlyText, pathNameOnlyText);
+        /*ArrayList<String> original = fm.readFile(pathName);
+        save changes to database
+        RepositoryDao rd = new RepositoryDao();
+        get old string per row and give row number as a key
+        Map<Integer, String> mapOri = new HashMap<>();
+        for(int i=0;i<original.size();i++){
+            mapOri.put(i, original.get(i));
+        }
+        save note's changes to database
+        insertChange(getNoteChanges(original, revised), rd.selectByName(openedNote), mapOri, new ChangesDao());
+        */
+        try {
+            /*---- end of save note's changes ----*/
+            fm.writeFile(revised, pathName);
+            fm.writeFile(revisedOnlyText, pathNameOnlyText);
+        } catch (IOException ex) {
+            System.out.println("IOException : "+ex.getMessage());
+        }
+        
         System.out.println(DateUtil.getTimeNow()+" saving note : "+openedNote);
     }
 
     @FXML
-    private void openNote() throws IOException {
+    private void openNote()  throws IOException{
 
         FileModer fm = new FileModer();
         String noteName = lvNotes.getSelectionModel().getSelectedItem();
@@ -324,7 +350,7 @@ public class FXMLController implements Initializable {
 
         String content = fm.readFileToString(noteTxtFile);
         //System.out.println(content);
-        if (openedNote != null) {
+        if (openedNote != null && openedNote!=noteName) {
             saveNote();
         }
 
@@ -373,14 +399,13 @@ public class FXMLController implements Initializable {
     }
 
     private void deleteNote(String note) {
-        //confirmation alert,
-        //deleted note
+        
         String confirm = "Do you want to delete note " + note + "?\n "
                 + "In order to delete the note on the server, you should delete it on the web application.";
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, confirm, ButtonType.YES, ButtonType.CANCEL);
         alert.showAndWait();
         if (alert.getResult() == ButtonType.YES) {
-            System.out.println("yes");
+            //System.out.println("yes");
             RepositoryDao repDao = new RepositoryDao();
             Repository rep = repDao.selectByName(note);
             ChangesDao cd = new ChangesDao();
@@ -398,25 +423,28 @@ public class FXMLController implements Initializable {
             cd.deleteByRepository(rep);
             System.out.println(DateUtil.getTimeNow()+" delete note : "+openedNote+" completed");
         }
+        openedNote = null;
+        pathFile = null;
         //listViewNotes(repdao);
         this.lvNotes.getItems().remove(note);
     }
 
     private void noteSynchronizing(String noteName, int OID) throws RemoteException {
         
-        // check is login v 
-        // check whether it is first commit or make a change 
-        // if it is first commit, then send the html text
-        // if it make a change, then send the html text and the changes
-        // from server, return the data, consists of changes every submission that the user has not pull it
-        // every submission, server will notify every contirbutor and user for the changes were happened
         System.out.println(DateUtil.getTimeNow()+" checking login state ...");
         if (Conf.user != null) { //if login
             System.out.println(DateUtil.getTimeNow()+" preparing for synchronizing : "+noteName);
             
             boolean isLogin = as.isLogin(Conf.user);
-            int isOnServer = ns.isAvailable(Conf.UID, noteName);
-            //System.out.println(isLogin + " " + isOnServer);
+            int idOnServer = repdao.selectByName(noteName).getId_on_server();
+            //System.out.println("id on server "+idOnServer);
+            int isOnServer = 0;
+            if(idOnServer>0){
+                isOnServer = ns.isAvailable(Conf.UID, (int) repdao.selectByName(noteName).getId_on_server());
+            }else{
+                isOnServer = ns.isAvailable(Conf.UID, noteName);
+            }
+            
             Repository rep = repdao.selectByName(noteName);
             com.notehub.api.entity.Note note = new com.notehub.api.entity.Note();
             //upload them
@@ -428,7 +456,6 @@ public class FXMLController implements Initializable {
             note.setIdNote(rep.getId_on_server());
             ChangesDao cd = new ChangesDao();
             StringModer sm = new StringModer();
-            //String text = sm.addNewLineHTMLTags(che.getHtmlText());
             String text = sm.stripHTMLTags(che.getHtmlText());
             ArrayList<String> arrayNote = sm.strToArrayList(text);
             NoteChangesMap ncm = new NoteChangesMap();
@@ -444,27 +471,26 @@ public class FXMLController implements Initializable {
                 //System.out.println(note.getIdNote() + "--" + lastVersionOnServer + "<- ->" + lastVersionOnLocal);
                 if (lastVersionOnServer > lastVersionOnLocal) { //if there is/are difference version between local and server
                     //if server's is larger, ask whether just take the update or overwrite the server's data
-                    System.out.println("server database has newer version");
-                    String msg = "server database has newer version!\ndo you want to overwrite the data?\n"
-                            + "be carefull, it will be erase many works on the note";
+                    System.out.println(DateUtil.getTimeNow()+" server database has newer version");
+                    /*String msg = "server database has newer version!\ndo you want to overwrite the data?\n"
+                           + "be carefull, it will be erase many works on the note";
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION, msg, ButtonType.APPLY, ButtonType.CANCEL);
                     alert.showAndWait();
                     if (alert.getResult() == ButtonType.APPLY) {
 
-                        //if overwrite, update the server's data, 
-                        //      return all of the update between local data and the server, 
-                        //      then update the local database
-                        //1 write to server
+                        if overwrite, update the server's data, 
+                              return all of the update between local data and the server, 
+                              then update the local database
+                        1 write to server
+                        */
                         System.out.println(DateUtil.getTimeNow()+" updating the server data ...");
                         ns.updateNote(note); //update the last note to server
                         System.out.println(DateUtil.getTimeNow()+" calculating note's changes ...");
                         ncm = checkingChanges(sm, text, ncm, lastVersionOnServer, note);
                         System.out.println(DateUtil.getTimeNow()+" updating server note's changes ...");
                         nss.insertNoteChange(ncm); //insert to server's note changes
-                    }
+                    //}
                 } else if ((lastVersionOnServer == lastVersionOnLocal) && lastVersionOnServer>0 && lastVersionOnLocal>0) {
-                    //klo sama, update di server
-                    //update notes
                     System.out.println(DateUtil.getTimeNow()+" local version is the same with server data's version");
                     System.out.println(DateUtil.getTimeNow()+" updating the server data ...");
                     ns.updateNote(note);
@@ -472,10 +498,13 @@ public class FXMLController implements Initializable {
                     //System.out.println(text);
                     System.out.println(DateUtil.getTimeNow()+" calculating note's changes ...");
                     ncm = checkingChanges(sm, text, ncm, lastVersionOnServer, note);
-                    System.out.println(ncm.getNoteChangesMap().size());
+                    //System.out.println(ncm.getNoteChangesMap().size());
                     System.out.println(DateUtil.getTimeNow()+" updating server note's changes ...");
                     nss.insertNoteChange(ncm); //insert to server's note changes
                 }
+                //System.out.println(note.getIdNote());
+                msss.broadcastMessage(note.getNoteTitle(), note.getIdNote());
+                return;
 
             } else {  //the note is not in the server
                 System.out.println(DateUtil.getTimeNow()+" user is login and the note is not on server database");
@@ -485,6 +514,10 @@ public class FXMLController implements Initializable {
                 System.out.println(DateUtil.getTimeNow()+" note online id : " + note.getIdNote());
                 rep.setId_on_server(note.getIdNote());
                 repdao.update(rep);
+                //flush to conf file
+                ConfigurationManager cm = new ConfigurationManager();
+                
+                cm.updateConfFile(rep.getLocal_location(), rep, Conf.UID);
                 ncm.setVersion(1);
                 for (int i = 0; i < arrayNote.size(); i++) {
                     NoteChange nc = new NoteChange();
@@ -499,7 +532,7 @@ public class FXMLController implements Initializable {
                 }
 
                 nss.insertNoteChange(ncm);
-
+                
             }
             System.out.println(DateUtil.getTimeNow()+" retrieve changes from server : "+ncm.getNoteChangesMap().size());
             List<NoteChangesMap> serverSynch = nss.getNoteChangesMap(note, note.getIdNote(), lastVersionOnLocal + 1);
@@ -548,7 +581,7 @@ public class FXMLController implements Initializable {
         Map<Integer, String> mapOri = new HashMap<>();
         FileModer fm = new FileModer();
         try {
-            original = fm.readFile(pathName);
+            original = fm.readFileFromString(pathName); //ini dia masalahnya
 
             for (int i = 0; i < original.size(); i++) {
                 mapOri.put(i, original.get(i));
@@ -557,7 +590,7 @@ public class FXMLController implements Initializable {
             //save note's changes to database
             insertChange(noteChanges, repdao.selectByName(openedNote), mapOri, new ChangesDao());
         } catch (IOException ex) {
-            Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("IOException : "+ex.getMessage());
         }
 
         ncm.setVersion(lastVersionOnServer + 1); //set last server version ++
@@ -598,11 +631,12 @@ public class FXMLController implements Initializable {
      * @param repdao
      */
     private void listViewNotes(RepositoryDao repdao) {
-        List<String> movingItems = new ArrayList<>(lvNotes.getSelectionModel().getSelectedItems());
-        lvNotes.getItems().removeAll(movingItems);
+        //List<String> movingItems = new ArrayList<>(lvNotes.getSelectionModel().getSelectedItems());
+        //lvNotes.getItems().removeAll(movingItems);
+        lvNotes.getItems().clear();
         ArrayList<Repository> list = repdao.selectAll();
         for (Repository rep : list) {
-            System.out.println(rep.getName_repo());
+            //System.out.println(rep.getName_repo());
             lvNotes.getItems().add(rep.getName_repo());
         }
     }
@@ -614,12 +648,20 @@ public class FXMLController implements Initializable {
      * @param revised
      * @return row# change, type of change,
      */
-    private Map<Integer, HashMap<ChangesDao.CHANGE, List>> getNoteChanges(ArrayList<String> original, ArrayList<String> revised) throws IOException {
+    private Map<Integer, HashMap<ChangesDao.CHANGE, List>> getNoteChanges(ArrayList<String> original, ArrayList<String> revised) {
         Map<Integer, HashMap<ChangesDao.CHANGE, List>> am = new TreeMap<>();
         FileComparator fc = new FileComparator();
-        List<Chunk> changes = fc.getChangesFromOriginal(original, revised); //problems
-        List<Chunk> deletes = fc.getDeletesFromOriginal(original, revised);
-        List<Chunk> inserts = fc.getInsertsFromOriginal(original, revised);
+        List<Chunk> changes = null;
+        List<Chunk> deletes = null;
+        List<Chunk> inserts = null;
+        try {
+            changes = fc.getChangesFromOriginal(original, revised); //problems
+            deletes = fc.getDeletesFromOriginal(original, revised);
+            inserts = fc.getInsertsFromOriginal(original, revised);
+        } catch (IOException ex) {
+            System.out.println("IOException : "+ex.getMessage());
+        }
+        
         sortChunk(am, changes, ChangesDao.CHANGE.CHANGE);
         sortChunk(am, deletes, ChangesDao.CHANGE.DELETE);
         sortChunk(am, inserts, ChangesDao.CHANGE.INSERT);
@@ -660,9 +702,14 @@ public class FXMLController implements Initializable {
      * @return
      * @throws IOException
      */
-    private List<String> getOriginalContent(String pathName) throws IOException {
+    private List<String> getOriginalContent(String pathName)  {
         FileModer fm = new FileModer();
-        ArrayList<String> original = fm.readFile(pathName);
+        ArrayList<String> original = null;
+        try {
+            original = fm.readFile(pathName);
+        } catch (IOException ex) {
+            System.out.println("IOException : "+ex.getMessage());
+        }
         return original;
     }
 
@@ -713,7 +760,7 @@ public class FXMLController implements Initializable {
      * @param username
      * @param password
      */
-    public void doLogin(String username, String password) {
+    public void doLogin(String username, String password)  {
         com.notehub.api.entity.User user = new com.notehub.api.entity.User();
         user.setUsername(username);
         user.setPassword(password);
@@ -743,17 +790,27 @@ public class FXMLController implements Initializable {
         }
 
         Conf.setConf(true, user.getIdUser(), user.getIdOnline(), user);
-
+        try {
+            messageClient = new MessageClientImpl(user.getIdUser(),msss);
+        } catch (RemoteException ex) {
+            Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         setLoginButton("Hi, " + user.getUsername() + "!", false);
-        System.out.println(user.getLastConnect() + "-" + user.getIdOnline());
+        //System.out.println(user.getLastConnect() + "-" + user.getIdOnline());
 
     }
 
     /**
-     *
+     * logout
      */
     public void logout() {
         com.notehub.api.entity.User user = null;
+        System.out.println(DateUtil.getTimeNow()+" logout");
+        try {
+            msss.removeRegisterUser(Conf.UID);
+        } catch (RemoteException ex) {
+            Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             user = as.logout(Conf.user);
         } catch (RemoteException re) {
@@ -776,7 +833,7 @@ public class FXMLController implements Initializable {
     }
 
     /**
-     *
+     * hide and show login form
      * @param welcome
      * @param isNotLogin
      */
@@ -786,6 +843,25 @@ public class FXMLController implements Initializable {
         txtUsername.setVisible(isNotLogin);
         txtPassword.setVisible(isNotLogin);
         lbWelcome.setText(welcome);
+    }
+    
+    /**                                        
+     * ****************************************
+     * *         C   A   N   V   A   S        *
+     * ****************************************
+     */ 
+    private void initCanvas(CanvasNote canvasNote, GraphicsContext gc){
+        btPencil.setOnAction(e->canvasNote.freeDraw(canvas, gc));
+        btErase.setOnAction(e->canvasNote.eraseShape(canvas, gc));
+        cpColor.setOnAction(e->{
+            canvasNote.setColor(cpColor.getValue());
+        });
+        cbStroke.getItems().addAll(2,4,5,6,8,10);
+        
+        cbStroke.setOnAction(e->{
+            canvasNote.setLineWidth((int)cbStroke.getValue());
+        });
+        btSaveCanvas.setOnAction(e->canvasNote.savePicture(canvas, che));
     }
 
 }

@@ -13,16 +13,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class FileModer {
-    
-    private String fileName;
-    private String fullPathName;
-    private String pathName;
     
     /**
      * 
@@ -74,6 +71,16 @@ public class FileModer {
             line = br.readLine();
         }
         fr.close();
+        return result;
+    }
+    
+    public ArrayList<String> readFileFromString(String filePath) throws FileNotFoundException, IOException{
+        StringModer sm = new StringModer();
+        String text = sm.stripHTMLTags(readFileToString(filePath));
+        
+        String[] values = text.split("\n");
+        ArrayList<String> result = new ArrayList<>(Arrays.asList(values));
+       
         return result;
     }
     

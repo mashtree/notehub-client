@@ -7,7 +7,7 @@ package com.advos.notehub.client.entity;
 
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class User {
     private String username;

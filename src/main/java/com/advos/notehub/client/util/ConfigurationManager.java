@@ -5,19 +5,20 @@ package com.advos.notehub.client.util;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+import com.advos.notehub.client.entity.Repository;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import jdk.internal.org.xml.sax.SAXException;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -26,7 +27,7 @@ import org.w3c.dom.NodeList;
 
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class ConfigurationManager {
 
@@ -36,7 +37,7 @@ public class ConfigurationManager {
      * @param selectedDirectory
      * @throws IOException
      */
-    public void createFileConf(File selectedDirectory, String pathFile) throws IOException {
+    public void createFileConf(File selectedDirectory, String pathFile, Repository rep) throws IOException {
         /**
          * DIRECTORY'S STRUCTURE note's name - dir
          */
@@ -62,6 +63,12 @@ public class ConfigurationManager {
         String confFile = "conf";//dirConf+"notehub.xml";
         if (!new File(pathFile + "/" + confFile).exists()) {
             fm.writeFile(confContent, pathFile + "/" + confFile);
+        }else{ //when conf file exist, put the server note's id information to local database
+            List<String> content = fm.readFile(pathFile + "/" + confFile);
+            if(content.size()>0){
+                String[] conf = content.get(0).split(":");
+                rep.setId_on_server(Integer.parseInt(conf[0]));
+            }
         }
 
         //fm.createDirectory(dirConf);
@@ -70,6 +77,17 @@ public class ConfigurationManager {
         //ConfigurationManager cm = new ConfigurationManager();
         //cm.createXMLFile(confFile, selectedDirectory.getName());
         //System.out.println(pathFile+"/.conf/"+confFile);
+    }
+    
+    public void updateConfFile(String pathFile, Repository rep, int UID){
+        try {
+            FileModer fm = new FileModer();
+            String confContent = rep.getId_on_server()+":" + rep.getName_repo() + ":"+UID;
+            String confFile = "conf";
+            fm.writeFile(confContent, pathFile + "/" + confFile);
+        } catch (IOException ex) {
+            Logger.getLogger(ConfigurationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void createXMLFile(File file, String noteName) {

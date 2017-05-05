@@ -14,7 +14,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author aisyahumar
+ * @author triyono
  */
 public class ChangesDao {
 
@@ -158,7 +157,7 @@ public class ChangesDao {
                     ch.setVersion(rs.getInt("version"));
                     ch.setId_repo(rs.getInt("id_repo"));
                     ch.setRow_updates_num(rs.getInt("row_updates_num"));
-                    ch.setChange_type("change_type");
+                    ch.setChange_type(rs.getString("change_type"));
                     ch.setOld(rs.getString("old"));
                     ch.setNewChanges(rs.getString("new"));
                     ch.setFile(rs.getString("file"));
